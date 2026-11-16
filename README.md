@@ -199,21 +199,15 @@ Evidence:(Drag and drop Screenshot (249).png and Screenshot (250).png here)
 | **Discovery** | `22:19:24` | `T1016` | `http://ipinfo.io/json` (`54.148.194.58`) | Automated victim public IP and geolocation check post-detonation. |
 | **Impact** | `2016-08-24` | `T1486` – Data Encrypted for Impact | Target: `we9041srv` (`\\*\fileshare` $\rightarrow$ `*.cerber`) | Network file share encrypted over SMB (`EventCode 5145`, 986 security audit events). |
 
-Remediation & Defensive Recommendations
-Immediate Containment:
+---
 
-Isolate host we8105desk (192.168.250.100) and the DMZ Joomla web server from the corporate network.
-
-Disable compromised domain account WAYNECORPINC\bob.smith and rotate credentials for the Joomla admin account.
-
-Block external attacker and C2 IPs/domains at the perimeter firewall: 40.80.148.42, 23.22.63.114, 37.187.37.150, and solidaritedeproximite.org.
-
-Endpoint & Access Hardening:
-
-Enforce Group Policy Objects (GPO) to disable Microsoft Office macros from executing in files originating from the internet or removable drives (D:\), and implement Attack Surface Reduction (ASR) rules blocking Office applications (WINWORD.EXE) from spawning child command interpreters (cmd.exe, wscript.exe, powershell.exe).
-
-Apply Software Restriction Policies / AppLocker rules blocking executables and scripts from running out of %APPDATA% (AppData\Roaming) and %TEMP%.
-
-Recovery:
-
-Restore encrypted files on we9041srv (C:\fileshare) from verified offline/immutable backups and re-image we8105desk.
+## 🛡️ Remediation & Defensive Recommendations
+1. **Immediate Containment:**
+   * Isolate host **`we8105desk` (`192.168.250.100`)** and the DMZ Joomla web server from the corporate network.
+   * Disable compromised domain account **`WAYNECORPINC\bob.smith`** and rotate credentials for the Joomla **`admin`** account.
+   * Block external attacker and C2 IPs/domains at the perimeter firewall: `40.80.148.42`, `23.22.63.114`, `37.187.37.150`, and `solidaritedeproximite.org`.
+2. **Endpoint & Access Hardening:**
+   * Enforce Group Policy Objects (GPO) to **disable Microsoft Office macros** from executing in files originating from the internet or removable drives (`D:\`), and implement Attack Surface Reduction (ASR) rules blocking Office applications (`WINWORD.EXE`) from spawning child command interpreters (`cmd.exe`, `wscript.exe`, `powershell.exe`).
+   * Apply Software Restriction Policies / AppLocker rules blocking executables and scripts from running out of `%APPDATA%` (`AppData\Roaming`) and `%TEMP%`.
+3. **Recovery:**
+   * Restore encrypted files on **`we9041srv` (`C:\fileshare`)** from verified offline/immutable backups and re-image `we8105desk`.
