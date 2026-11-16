@@ -31,6 +31,7 @@ index="botsv1" sourcetype="stream:http"
 ```
 ![Phase 1 - Initial Reconnaissance](screenshots/phase01_initial_recon.png)
 
+
 Analyst Conclusion: A single external IP address (40.80.148.42) generated 17,420 HTTP requests in a very short window. Although the user-agent strings attempt to spoof a legitimate Chrome browser, the sheer volume of requests confirms the use of an automated vulnerability scanner or brute-force tool.
 
 ### Phase 2: Target Identification
@@ -42,7 +43,7 @@ index="botsv1" sourcetype="stream:http" src_ip="40.80.148.42"
 | sort - count
 | head 10
 ```
-Evidence:(Drag and drop Phase 2 screenshot here)
+![Phase 2 - Target Identification](screenshots/phase02_joomla_target.png)
 
 Triage & Analysis: The attacker targeted a Joomla CMS installation. The high volume of traffic directed at the Joomla search component indicates automated vulnerability fuzzing, while requests to /windows/win.ini show attempted Local File Inclusion (LFI). The attacker also discovered the administrative login portal at /joomla/administrator/index.php.
 
@@ -53,7 +54,7 @@ Triage & Analysis: The attacker targeted a Joomla CMS installation. The high vol
 index="botsv1" sourcetype="stream:http" src_ip="40.80.148.42" uri="/joomla/administrator/index.php" http_method="POST"
 | stats count
 ```
-Evidence:(Drag and drop Phase 3 screenshot here)
+![Phase 3 - Admin Portal Targeting](screenshots/phase03_admin_post_count.png)
 
 Analyst Conclusion: The attacker executed exactly 13 HTTP POST requests against the admin login page. This low volume indicates a highly targeted password guessing attempt rather than a massive, noisy brute-force attack.
 
@@ -63,8 +64,9 @@ Analyst Conclusion: The attacker executed exactly 13 HTTP POST requests against 
 ```spl
 index="botsv1" sourcetype="stream:http" src_ip="40.80.148.42" uri="/joomla/administrator/index.php" http_method="POST"
 | table _time, form_data
-Evidence:(Drag and drop Phase 4 screenshot here)
 ```
+![Phase 4 - Credential Compromise](screenshots/phase04_admin_credentials.png)
+
 Analyst Conclusion: Packet capture inspection of form_data reveals the attacker submitted the credentials username=admin and passwd=batman via an HTTP POST request. This indicates the administrative password was compromised via a targeted dictionary attack or prior credential leak.
 
 ### Phase 5: Breach Confirmation
@@ -74,7 +76,7 @@ Analyst Conclusion: Packet capture inspection of form_data reveals the attacker 
 index="botsv1" sourcetype="stream:http" src_ip="40.80.148.42" uri="/joomla/administrator/index.php" http_method="POST"
 | table _time, status
 ```
-Evidence:(Drag and drop Phase 5 screenshot here)
+![Phase 5 - Breach Confirmation](screenshots/phase05_http_303_breach.png)
 
 Analyst Conclusion: The web server returned an HTTP 303 Redirect at the exact timestamp of the admin:batman POST request, confirming the credentials were valid and the adversary bypassed perimeter authentication controls to gain administrative access.
 
@@ -92,8 +94,9 @@ Analyst Conclusion: Endpoint telemetry confirms that shortly after gaining admin
 * **SPL Query:**
 ```spl
 index="botsv1" "3791.exe" "DestinationIp"
-Evidence:(Drag and drop Phase 7 screenshot here)
 ```
+![Phase 7 - Command and Control Connection](screenshots/phase07_c2_connection.png)
+
 Analyst Conclusion: Endpoint Sysmon logs (EventID 3) reveal that immediately upon execution, 3791.exe initiated an outbound TCP connection to an external C2 IP address (23.22.63.114) over port 1337, establishing a reverse shell / secondary staging channel. Subsequent analysis of Windows Security EventCode 4624 network logons confirmed the attacker did not laterally pivot from this web server to internal desktops, proving the subsequent ransomware alert stemmed from a separate attack vector.
 
 ## 🔒 Part 3: Cerber Ransomware Outbreak & Endpoint Forensics
@@ -105,7 +108,7 @@ Analyst Conclusion: Endpoint Sysmon logs (EventID 3) reveal that immediately upo
 index="botsv1" "cerber"
 | stats count by host
 ```
-Evidence:(Drag and drop Screenshot (238).png here)
+![Phase 8 - Ransomware Target Identification](screenshots/phase08_cerber_hosts.png)
 
 Analyst Conclusion: A global search for Cerber indicators across the botsv1 index revealed 986 ransomware-related events on internal host we9041srv. Inspection of the underlying sourcetype (wineventlog:security) and active system processes (dfssvc.exe, NT AUTHORITY\SYSTEM) confirmed that we9041srv is the corporate File Server, where shared files were encrypted over the network.
 
@@ -116,7 +119,7 @@ Analyst Conclusion: A global search for Cerber indicators across the botsv1 inde
 index="botsv1" host="we9041srv" "cerber"
 | head 1
 ```
-Evidence:(Drag and drop Screenshot (241).png here)
+![Phase 9 - Patient Zero Identification](screenshots/phase09_patient_zero.png)
 
 Analyst Conclusion: Analysis of Windows Security EventCode 5145 (Detailed File Share) logs on we9041srv reveals that domain user account WAYNECORPINC\bob.smith (bob.smith), operating from internal workstation IP 192.168.250.100, actively wrote encrypted .cerber files (such as 838\nvdSp0qz63.cerber) to the \\*\fileshare (\??\C:\fileshare) network share. This confirms Bob Smith (192.168.250.100) is Patient Zero for the ransomware outbreak.
 
@@ -128,7 +131,7 @@ index="botsv1" "192.168.250.100" "bob.smith" host="*desk*"
 | stats count by host
 | sort - count
 ```
-Evidence:(Drag and drop Screenshot (245).png here)
+![Phase 10 - Victim Workstation Identification](screenshots/phase10_victim_workstation.png)
 
 Analyst Conclusion: By correlating source IP 192.168.250.100 and user bob.smith across desktop endpoints (host="*desk*"), all 48,285 workstation events resolved to a single machine: we8105desk. This confirms we8105desk is the origin endpoint where the Cerber ransomware detonated.
 
@@ -143,7 +146,7 @@ index="botsv1" host="we8105desk" "<EventID>1</EventID>" "bob.smith"
 | table _time, ParentProcess, Process, CommandLine
 | sort _time
 ```
-Evidence:(Drag and drop Screenshot (246).jpg here)
+![Phase 11 - Malicious Macro Execution Chain](screenshots/phase11_macro_stager.jpg)
 
 Analyst Conclusion: Sysmon EventID 1 (Process Creation) logs on we8105desk reveal that at 22:13:12, user bob.smith opened a malicious macro-enabled Word template located on an external/mounted volume: "C:\Program Files (x86)\Microsoft Office\Office14\WINWORD.EXE" /n /dde "D:\Miranda_Tate_unveiled.dotm". Nine seconds later (22:13:21), WINWORD.EXE spawned C:\Windows\SysWOW64\cmd.exe with a heavily obfuscated command line that dynamically wrote a VBScript dropper to C:\Users\bob.smith.WAYNECORPINC\AppData\Roaming\20429.vbs and immediately executed it via wscript.exe.
 
@@ -158,7 +161,7 @@ index="botsv1" host="we8105desk" "<EventID>1</EventID>" "bob.smith"
 | table _time, ParentProcess, Process, CommandLine
 | sort _time
 ```
-Evidence:(Drag and drop Phase 12 / Page 7 screenshot here)
+![Phase 12 - Ransomware Payload Detonation](screenshots/phase12_payload_detonation.png)
 
 Analyst Conclusion: Following a 5-minute sleep cycle inside 20429.vbs designed to evade automated sandbox analysis (22:13:21 to 22:18:21), wscript.exe spawned cmd.exe ("C:\Windows\System32\cmd.exe" /C START "" "C:\Users\bob.smith.WAYNECORPINC\AppData\Roaming\121214.tmp") to launch a disguised portable executable. Eight seconds later (22:18:29), 121214.tmp spawned a child instance of itself and began encrypting files across we8105desk and the \\*\fileshare network share on we9041srv.
 
@@ -170,12 +173,14 @@ index="botsv1" host="we8105desk" "<EventID>1</EventID>" "121214.tmp"
 | rex field=_raw "Name='Hashes'>(?<Hashes>[^<]+)<"
 | table _time, Process, Hashes
 ```
+![Phase 13a - Malware Cryptographic Hashes](screenshots/phase13a_malware_hashes.png)
+
 ```spl
 index="botsv1" sourcetype="stream:http" src_ip="192.168.250.100"
 | table _time, dest_ip, site, uri, http_user_agent
 | sort _time
 ```
-Evidence:(Drag and drop Screenshot (249).png and Screenshot (250).png here)
+![Phase 13b - HTTP Payload Download and IP Profiling](screenshots/phase13b_http_download.png)
 
 ### Incident 1: Joomla Web Server Compromise
 
