@@ -184,7 +184,7 @@ index="botsv1" sourcetype="stream:http" src_ip="192.168.250.100"
 ```
 ![Phase 13b - HTTP Payload Download and IP Profiling](screenshots/phase13b_http_download.png)
 
-* **Analyst Conclusion:** Sysmon EventID 1 logs confirm the disguised ransomware binary (121214.tmp) carries an MD5 hash of EE0828A4E4C195D97313BFC7D4B531F1 and a SHA256 hash of 37397F8D8E4B3731749094D7B7CD2CF56CACB12DD69E0131F07DD78DFF6F262B. Correlation with stream:http network traffic from 192.168.250.100 reveals that at 22:18:13.285—immediately after the 5-minute VBScript sleep timer expired—the stager downloaded the ransomware binary disguised as a JPEG image (http://solidaritedeproximite.org/mhtr.jpg) hosted on 37.187.37.150. One minute after detonation (22:19:24.504), the malware queried http://ipinfo.io/json (54.148.194.58) to perform victim IP and geolocation profiling.
+* **Analyst Conclusion:** Sysmon EventID 1 logs confirm the disguised ransomware binary (121214.tmp) carries an MD5 hash of EE0828A4E4C195D97313BFC7D4B531F1 and a SHA256 hash of 37397F8D8E4B3731749094D7B7CD2CF56CACB12DD69E0131F07DD78DFF6F262B. Correlation with stream:http network traffic from 192.168.250.100 reveals that at 22:18:13.285 immediately after the 5 minute VBScript sleep timer expired the stager downloaded the ransomware binary disguised as a JPEG image (http://solidaritedeproximite.org/mhtr.jpg) hosted on 37.187.37.150. One minute after detonation (22:19:24.504), the malware queried http://ipinfo.io/json (54.148.194.58) to perform victim IP and geolocation profiling.
 
 ### Incident 1: Joomla Web Server Compromise
 
