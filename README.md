@@ -29,7 +29,7 @@ index="botsv1" sourcetype="stream:http"
 | stats count by src_ip, http_user_agent
 | sort - count
 ```
-Evidence:(Drag and drop Phase 1 screenshot here)
+Evidence: https://github.com/AnshKhanna7503/splunk-botsv1-threat-hunting/blob/main/screenshots/phase01_initial_recon.png
 
 Analyst Conclusion: A single external IP address (40.80.148.42) generated 17,420 HTTP requests in a very short window. Although the user-agent strings attempt to spoof a legitimate Chrome browser, the sheer volume of requests confirms the use of an automated vulnerability scanner or brute-force tool.
 
