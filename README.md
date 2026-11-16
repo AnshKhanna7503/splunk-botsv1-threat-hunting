@@ -147,7 +147,7 @@ index="botsv1" host="we8105desk" "<EventID>1</EventID>" "bob.smith"
 | table _time, ParentProcess, Process, CommandLine
 | sort _time
 ```
-![Phase 11 - Malicious Macro Execution Chain](screenshots/phase11_macro_stager.jpg)
+![Phase 11 - Malicious Macro Execution Chain](screenshots/phase11_macro_stager.png)
 
 Analyst Conclusion: Sysmon EventID 1 (Process Creation) logs on we8105desk reveal that at 22:13:12, user bob.smith opened a malicious macro-enabled Word template located on an external/mounted volume: "C:\Program Files (x86)\Microsoft Office\Office14\WINWORD.EXE" /n /dde "D:\Miranda_Tate_unveiled.dotm". Nine seconds later (22:13:21), WINWORD.EXE spawned C:\Windows\SysWOW64\cmd.exe with a heavily obfuscated command line that dynamically wrote a VBScript dropper to C:\Users\bob.smith.WAYNECORPINC\AppData\Roaming\20429.vbs and immediately executed it via wscript.exe.
 
