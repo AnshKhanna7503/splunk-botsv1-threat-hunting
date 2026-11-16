@@ -1,1 +1,18 @@
-
+Incident,Phase,Indicator_Type,Indicator_Value,MITRE_ATTCK,Context
+Incident 1 - Joomla Compromise,Phase 1-5,IPv4,40.80.148.42,T1595.002 / T1110.001,External scanner and attacker IP performing 17420 HTTP requests and 13 POST login attempts
+Incident 1 - Joomla Compromise,Phase 4,Credential,admin:batman,T1078,Compromised Joomla CMS administrator portal credentials (/joomla/administrator/index.php)
+Incident 1 - Joomla Compromise,Phase 6,File Path,C:\inetpub\wwwroot\joomla\3791.exe,T1505.003 / T1204,Malicious executable uploaded and run on Joomla web server post-compromise
+Incident 1 - Joomla Compromise,Phase 7,IPv4:Port,23.22.63.114:1337,T1071 / T1571,External Command-and-Control (C2) server contacted by 3791.exe
+Incident 2 - Cerber Ransomware,Phase 8-13,Host / Internal IP,we8105desk (192.168.250.100),T1204.002,Patient Zero corporate desktop workstation where ransomware executed
+Incident 2 - Cerber Ransomware,Phase 9,Domain Account,WAYNECORPINC\bob.smith,T1078,Compromised domain user account executing macro and encrypting network share
+Incident 2 - Cerber Ransomware,Phase 8-9,Target Server,we9041srv (C:\fileshare),T1486,Corporate file server impacted by .cerber file encryption (EventCode 5145)
+Incident 2 - Cerber Ransomware,Phase 11,File Path,D:\Miranda_Tate_unveiled.dotm,T1091 / T1566.001,Malicious macro-enabled Word template opened from mounted drive D:\
+Incident 2 - Cerber Ransomware,Phase 11,File Path,C:\Users\bob.smith.WAYNECORPINC\AppData\Roaming\20429.vbs,T1059.005 / T1497.003,Obfuscated VBScript dropper with 5-minute sandbox evasion sleep cycle
+Incident 2 - Cerber Ransomware,Phase 12,File Path,C:\Users\bob.smith.WAYNECORPINC\AppData\Roaming\121214.tmp,T1036.008 / T1486,Disguised Cerber ransomware executable launched via cmd.exe /C START
+Incident 2 - Cerber Ransomware,Phase 13a,MD5,EE0828A4E4C195D97313BFC7D4B531F1,T1486,MD5 hash of Cerber ransomware payload (121214.tmp)
+Incident 2 - Cerber Ransomware,Phase 13a,SHA1,C8F3F0A33EFE38E9296EF79552C4CADF6CF0BDE6,T1486,SHA1 hash of Cerber ransomware payload (121214.tmp)
+Incident 2 - Cerber Ransomware,Phase 13a,SHA256,37397F8D8E4B3731749094D7B7CD2CF56CACB12DD69E0131F07DD78DFF6F262B,T1486,SHA256 hash of Cerber ransomware payload (121214.tmp)
+Incident 2 - Cerber Ransomware,Phase 13b,Domain,solidaritedeproximite.org,T1105,Staging domain hosting disguised ransomware binary
+Incident 2 - Cerber Ransomware,Phase 13b,URL,http://solidaritedeproximite.org/mhtr.jpg,T1105 / T1036.008,Payload download URL masquerading executable as JPEG image
+Incident 2 - Cerber Ransomware,Phase 13b,IPv4,37.187.37.150,T1105,IP address hosting solidaritedeproximite.org staging server
+Incident 2 - Cerber Ransomware,Phase 13b,URL,http://ipinfo.io/json,T1016,Victim public IP and geolocation discovery endpoint queried post-detonation (54.148.194.58)
