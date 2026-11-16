@@ -1,1 +1,68 @@
+// ============================================================================
+// Splunk BOTS v1 Threat Hunting Investigation - SPL Queries
+// ============================================================================
 
+// --- INCIDENT 1: JOOMLA WEB SERVER COMPROMISE & C2 ---
+
+// Phase 1: Initial Reconnaissance
+index="botsv1" sourcetype="stream:http"
+| stats count by src_ip, http_user_agent
+| sort - count
+
+// Phase 2: Target Identification
+index="botsv1" sourcetype="stream:http" src_ip="40.80.148.42"
+| stats count by uri
+| sort - count
+| head 10
+
+// Phase 3: Admin Portal Targeting
+index="botsv1" sourcetype="stream:http" src_ip="40.80.148.42" uri="/joomla/administrator/index.php" http_method="POST"
+| stats count
+
+// Phase 4: Credential Compromise
+index="botsv1" sourcetype="stream:http" src_ip="40.80.148.42" uri="/joomla/administrator/index.php" http_method="POST"
+| table _time, form_data
+
+// Phase 5: Breach Confirmation
+index="botsv1" sourcetype="stream:http" src_ip="40.80.148.42" uri="/joomla/administrator/index.php" http_method="POST"
+| table _time, status
+
+// Phase 6: Payload Delivery
+index="botsv1" "C:\\inetpub\\wwwroot\\joomla\\" ".exe"
+
+// Phase 7: Command and Control (C2) Connection
+index="botsv1" "3791.exe" "DestinationIp"
+
+
+// --- INCIDENT 2: CERBER RANSOMWARE OUTBREAK & ENDPOINT FORENSICS ---
+
+// Phase 8: Ransomware Target Identification
+index="botsv1" "cerber"
+| stats count by host
+
+// Phase 9: Compromised User & Patient Zero Identification
+index="botsv1" host="we9041srv" "cerber"
+| head 1
+
+// Phase 10: Victim Workstation Identification
+index="botsv1" "192.168.250.100" "bob.smith" host="*desk*"
+| stats count by host
+| sort - count
+
+// Phase 11 & 12: Initial Access, Macro Execution Chain & Ransomware Detonation
+index="botsv1" host="we8105desk" "<EventID>1</EventID>" "bob.smith"
+| rex field=_raw "Name='ParentImage'>(?<ParentProcess>[^<]+)<"
+| rex field=_raw "Name='Image'>(?<Process>[^<]+)<"
+| rex field=_raw "Name='CommandLine'>(?<CommandLine>[^<]+)<"
+| table _time, ParentProcess, Process, CommandLine
+| sort _time
+
+// Phase 13a: Payload Hash Extraction
+index="botsv1" host="we8105desk" "<EventID>1</EventID>" "121214.tmp"
+| rex field=_raw "Name='Hashes'>(?<Hashes>[^<]+)<"
+| table _time, Process, Hashes
+
+// Phase 13b: C2 & Staging Infrastructure Identification
+index="botsv1" sourcetype="stream:http" src_ip="192.168.250.100"
+| table _time, dest_ip, site, uri, http_user_agent
+| sort _time
