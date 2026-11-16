@@ -85,8 +85,9 @@ Analyst Conclusion: The web server returned an HTTP 303 Redirect at the exact ti
 * **SPL Query:**
 ```spl
 index="botsv1" "C:\\inetpub\\wwwroot\\joomla\\" ".exe"
-Evidence:(Drag and drop Phase 6 screenshot here)
 ```
+![Phase 6 - Payload Delivery](screenshots/phase06_payload_3791_exe.png)
+
 Analyst Conclusion: Endpoint telemetry confirms that shortly after gaining administrative access, the attacker uploaded and executed a malicious portable executable named 3791.exe within the C:\inetpub\wwwroot\joomla\ directory.
 
 ### Phase 7: Command and Control (C2) Connection
