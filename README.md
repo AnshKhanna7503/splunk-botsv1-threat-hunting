@@ -46,7 +46,7 @@ index="botsv1" sourcetype="stream:http" src_ip="40.80.148.42"
 ```
 ![Phase 2 - Target Identification](screenshots/phase02_joomla_target.png)
 
-* ** Triage & Analysis:**  The attacker targeted a Joomla CMS installation. The high volume of traffic directed at the Joomla search component indicates automated vulnerability fuzzing, while requests to /windows/win.ini show attempted Local File Inclusion (LFI). The attacker also discovered the administrative login portal at /joomla/administrator/index.php.
+* **Triage & Analysis:**  The attacker targeted a Joomla CMS installation. The high volume of traffic directed at the Joomla search component indicates automated vulnerability fuzzing, while requests to /windows/win.ini show attempted Local File Inclusion (LFI). The attacker also discovered the administrative login portal at /joomla/administrator/index.php.
 
 ### Phase 3: Admin Portal Targeting
 * **Objective:** Quantify the login attempts directed at the Joomla administrator portal.
