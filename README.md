@@ -177,13 +177,29 @@ index="botsv1" sourcetype="stream:http" src_ip="192.168.250.100"
 ```
 Evidence:(Drag and drop Screenshot (249).png and Screenshot (250).png here)
 
-Analyst Conclusion: Sysmon EventID 1 logs confirm the disguised ransomware binary (121214.tmp) carries an MD5 hash of EE0828A4E4C195D97313BFC7D4B531F1 and a SHA256 hash of 37397F8D8E4B3731749094D7B7CD2CF56CACB12DD69E0131F07DD78DFF6F262B. Correlation with stream:http network traffic from 192.168.250.100 reveals that at 22:18:13.285—immediately after the 5-minute VBScript sleep timer expired—the stager downloaded the ransomware binary disguised as a JPEG image (http://solidaritedeproximite.org/mhtr.jpg) hosted on 37.187.37.150. One minute after detonation (22:19:24.504), the malware queried http://ipinfo.io/json (54.148.194.58) to perform victim IP and geolocation profiling.
+### Incident 1: Joomla Web Server Compromise
 
-Evidence:(Drag and drop Screenshot (249).png and Screenshot (250).png here)
+| Kill Chain Stage | MITRE ATT&CK | Indicator of Compromise (IOC) / Artifact | Context |
+| :--- | :--- | :--- | :--- |
+| **Reconnaissance** | `T1595.002` – Vulnerability Scanning | `40.80.148.42` | Generated 17,420 HTTP requests scanning Joomla CMS & testing LFI (`/windows/win.ini`). |
+| **Initial Access** | `T1110.001` – Password Guessing | `/joomla/administrator/index.php` (`admin:batman`) | Compromised Joomla admin panel across 13 targeted HTTP POST requests (HTTP 303 Redirect). |
+| **Execution** | `T1505.003` / `T1204` – Web Shell / Server Execution | `C:\inetpub\wwwroot\joomla\3791.exe` | Malicious binary uploaded and executed on the web server post-compromise. |
+| **Command & Control** | `T1071` / `T1571` – Non-Standard Port | `23.22.63.114:1337` | Outbound TCP C2 connection initiated by `3791.exe`. |
 
-Analyst Conclusion: Sysmon EventID 1 logs confirm the disguised ransomware binary (121214.tmp) carries an MD5 hash of EE0828A4E4C195D97313BFC7D4B531F1 and a SHA256 hash of 37397F8D8E4B3731749094D7B7CD2CF56CACB12DD69E0131F07DD78DFF6F262B. Correlation with stream:http network traffic from 192.168.250.100 reveals that at 22:18:13.285—immediately after the 5-minute VBScript sleep timer expired—the stager downloaded the ransomware binary disguised as a JPEG image (http://solidaritedeproximite.org/mhtr.jpg) hosted on 37.187.37.150. One minute after detonation (22:19:24.504), the malware queried http://ipinfo.io/json (54.148.194.58) to perform victim IP and geolocation profiling.
+### Incident 2: Cerber Ransomware Outbreak
 
-🛡️ Remediation & Defensive Recommendations
+| Kill Chain Stage | Timestamp (Log) | MITRE ATT&CK | Artifact / Indicator of Compromise (IOC) | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **Patient Zero / Host** | `2016-08-24` | — | User: `WAYNECORPINC\bob.smith` \| Host: `we8105desk` (`192.168.250.100`) | Compromised domain user and desktop workstation. |
+| **Initial Access** | `22:13:12` | `T1091` / `T1566.001` | `D:\Miranda_Tate_unveiled.dotm` | Malicious macro-enabled Word template opened from mounted drive `D:\` via `WINWORD.EXE`. |
+| **Execution (Stager)** | `22:13:21` | `T1059.005` / `T1027` | `C:\Users\bob.smith.WAYNECORPINC\AppData\Roaming\20429.vbs` | Obfuscated `cmd.exe` macro command writes and launches VBScript dropper via `wscript.exe`. |
+| **Defense Evasion** | `22:13:21`–`22:18:21` | `T1497.003` – Time-Based Evasion | 5-minute `WScript.Sleep` loop | Delays payload download/execution for 300 seconds to bypass automated sandboxes. |
+| **Payload Delivery** | `22:18:13` | `T1105` / `T1036.008` | `http://solidaritedeproximite.org/mhtr.jpg` (`37.187.37.150`) | `20429.vbs` downloads the Cerber executable masquerading as a `.jpg` image. |
+| **Payload Detonation** | `22:18:21`–`22:18:29` | `T1204.002` / `T1055` | `C:\Users\bob.smith.WAYNECORPINC\AppData\Roaming\121214.tmp` | Disguised binary executed via `cmd.exe /C START` and self-injected (`MD5: EE0828A4E4C195D97313BFC7D4B531F1` \| `SHA256: 37397F8D8E4B3731749094D7B7CD2CF56CACB12DD69E0131F07DD78DFF6F262B`). |
+| **Discovery** | `22:19:24` | `T1016` | `http://ipinfo.io/json` (`54.148.194.58`) | Automated victim public IP and geolocation check post-detonation. |
+| **Impact** | `2016-08-24` | `T1486` – Data Encrypted for Impact | Target: `we9041srv` (`\\*\fileshare` $\rightarrow$ `*.cerber`) | Network file share encrypted over SMB (`EventCode 5145`, 986 security audit events). |
+
+Remediation & Defensive Recommendations
 Immediate Containment:
 
 Isolate host we8105desk (192.168.250.100) and the DMZ Joomla web server from the corporate network.
